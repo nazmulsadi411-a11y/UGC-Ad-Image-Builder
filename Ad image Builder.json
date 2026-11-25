@@ -1,0 +1,805 @@
+{
+  "name": "Ad image Builder",
+  "nodes": [
+    {
+      "parameters": {
+        "authentication": "n8nUserAuth",
+        "formTitle": "AI marketing Asset Generator",
+        "formDescription": "Launching a new product? Get 5 stunning ready-to-use visual tailored to your brand within  minutes",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "What is the product name?"
+            },
+            {
+              "fieldLabel": "What is the product tagline"
+            },
+            {
+              "fieldLabel": "Upload Product Image",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "What is the product category"
+            },
+            {
+              "fieldLabel": "Highlighted Benefit"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -1472,
+        384
+      ],
+      "id": "40eb7a1d-098c-4eec-b694-962abd253229",
+      "name": "On form submission",
+      "webhookId": "53a0b33c-b9eb-431d-94b4-209e7d9f4d30"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\n  \"brandName\": \"LUMISÉRA\",\n  \"brandTone\": \"Luxury skincare — clean, calm, and elegant.\",\n  \"colorTheme\": \"Deep sea blues, emerald greens, warm golds, and beige.\",\n  \"backgroundStyle\": \"Soft gradients or realistic textures like water, marble, or satin.\",\n  \"lightingStyle\": \"Always soft, diffused lighting with a subtle spotlight effect and gentle reflections.\",\n  \"productPlacement\": \"The product should feel grounded, not floating — placed on surfaces like trays, marble slabs, or fabric. Props like flower petals, ribbons, or boxes can be used sparingly.\",\n  \"typographyStyle\": \"Use serif fonts in uppercase for titles. For secondary text, use thin script or modern sans-serif. Font color should be white, soft gold, or dark green — never harsh.\",\n  \"compositionGuidelines\": \"Maintain clean symmetry or elegant off-center balance. Always leave intentional space around the product. Keep supporting elements minimal and refined.\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        -1248,
+        384
+      ],
+      "id": "afc240ed-c869-4cf6-a7a2-fcd7a72a1b7c",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "name": "={{ $('On form submission').item.json['What is the product name?'] }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1v68UHsyCpfa5qioklso8DqOFMf5tbyoN",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -1024,
+        384
+      ],
+      "id": "0c4e5373-d664-4b5d-b08d-b5f7f0d53a74",
+      "name": "Create folder",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Product Name: {{ $('On form submission').item.json['What is the product name?'] }}\nTagline: {{ $('On form submission').item.json['What is the product tagline'] }}\nBrand: {{ $('Edit Fields').item.json.brandName }}\nTone: {{ $('Edit Fields').item.json.brandTone }}\nCategory: {{ $('On form submission').item.json['What is the product category'] }}\nBenefit: {{ $('On form submission').item.json['Highlighted Benefit'] }}\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are a luxury product photographer and stylist.\n\nYour task is to suggest creative visual styling elements for 5 product launch assets — each for a different channel. The product is from a premium skincare brand with a clean, minimal, elegant tone — but it’s okay to be bold and attention-grabbing where suitable.\n\nEach asset must:\n- Feel part of the same brand campaign\n- Use varied styling (not repetitive)\n- Be visually differentiated based on its platform and purpose\n\nReturn a JSON object with the following structure:\n\nFor each asset, vary the:\n- backgroundTone → must be visually attractive and brand-aligned\n- surfaceType → creative but not distracting\n- accentProp → feminine, luxurious, and elegant (avoid droplets or overused props)\n- lighting → varies by mood or asset format\n- cameraAngle → changes perspective and storytelling\n- Overlay Text - a short yet attractive copy. (It could be a CTA, a launch offer, a normal text etc.) Avoid using the tagline. Make it sound as if it is coming from a very luxurious setting.\n\nUse tasteful elements like marble, linen, satin, ribbon, flowers, sculptural trays, and glass — but ensure each scene feels premium and styled intentionally.\n\nDo **not** repeat the same exact prop, background, or layout across assets.\n\nOnly respond with the structured JSON output.\n\n-----\n\n1. Instagram Post\n- Purpose: Feed-worthy hero image for social media\n- Visual Style: Polished, balanced composition. Clear product focus. Elegant props. Can be bold or eye-catching.\n\n2. Instagram Story\n- Purpose: Vertical (9:16) mobile-first visual\n- Visual Style: Cropped, zoomed-in. Close-up textures. Feels intimate and lightweight.\n\n3. Website Banner\n- Purpose: Wide header for homepage or hero section\n- Visual Style: Spacious layout with clean negative space. Product is usually off-center. Calm, minimal, premium.\n\n4. Ad Creative\n- Purpose: High-impact visual for paid ads or carousels\n- Visual Style: Bold, contrasty, visually striking but still refined. May use dramatic lighting or color.\n\n5. Testimonial Graphic\n- Purpose: Visual support for a customer quote or review\n- Visual Style: Soft, nurturing, and gentle. Product is present but secondary. Clean and emotionally warm.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -800,
+        384
+      ],
+      "id": "0729b098-9ff9-41bb-a8cb-1b2f1d4a06cc",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        -848,
+        640
+      ],
+      "id": "093a0d19-6967-4a4d-89e6-f7ece36a1762",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"assets\": [\n    {\n      \"assetType\": \"Instagram Post\",\n      \"backgroundTone\": \"soft blush gradient\",\n      \"surfaceType\": \"satin draped cloth\",\n      \"accentProp\": \"gold-trimmed ribbon\",\n      \"lighting\": \"warm spotlight from the side\",\n      \"cameraAngle\": \"45-degree angle\",\n      \"overlayText\": \"Glow deeper. Shine brighter.\"\n    },\n    {\n      \"assetType\": \"Instagram Story\",\n      \"backgroundTone\": \"pale lavender with light streaks\",\n      \"surfaceType\": \"textured ceramic tray\",\n      \"accentProp\": \"scattered rose petals\",\n      \"lighting\": \"top-down diffused glow\",\n      \"cameraAngle\": \"zoomed-in overhead view\",\n      \"overlayText\": \"Hydration you can feel. Right now.\"\n    },\n    {\n      \"assetType\": \"Website Banner\",\n      \"backgroundTone\": \"muted green stone texture\",\n      \"surfaceType\": \"brushed concrete slab\",\n      \"accentProp\": \"eucalyptus branch\",\n      \"lighting\": \"soft angled morning light\",\n      \"cameraAngle\": \"side-profile landscape\",\n      \"overlayText\": \"Glow like never before!\"\n    },\n    {\n      \"assetType\": \"Ad Creative\",\n      \"backgroundTone\": \"deep emerald with gradient fade\",\n      \"surfaceType\": \"reflective glass base\",\n      \"accentProp\": \"frosted crystal orb\",\n      \"lighting\": \"dramatic backlight\",\n      \"cameraAngle\": \"elevated 3/4 angle\",\n      \"overlayText\": \"10% Off Today Only\"\n    },\n    {\n      \"assetType\": \"Testimonial Graphic\",\n      \"backgroundTone\": \"cream linen with subtle shadows\",\n      \"surfaceType\": \"polished marble\",\n      \"accentProp\": \"single white tulip\",\n      \"lighting\": \"natural side lighting\",\n      \"cameraAngle\": \"clean straight-on view\",\n      \"overlayText\": \"My skin has never felt this good.\"\n    }\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        624
+      ],
+      "id": "b2062d41-24ef-4bc0-a6a8-679bc4999365",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: $json,\n    binary: {\n    image: $node[\"On form submission\"].binary[\"Upload_Product_Image\"]  // renaming it for HTTP upload\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -448,
+        384
+      ],
+      "id": "8d95c45b-4dd2-4876-9daa-acba2e3cdebc",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.output.assets[0].assetType }}",
+                    "rightValue": "Instagram Post",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "4d0ea2df-6b04-4084-9200-c187e47e2047"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "c61938cc-5890-41bf-8178-adfd95b4b4b4",
+                    "leftValue": "={{ $json.output.assets[1].assetType }}",
+                    "rightValue": "Instagram Story",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "afdce21f-bf08-4e0b-898b-80b7f9ba5b20",
+                    "leftValue": "={{ $json.output.assets[2].assetType }}",
+                    "rightValue": "Website Banner",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "b044b683-de37-4110-a86f-5c9f66b7e8bf",
+                    "leftValue": "={{ $json.output.assets[3].assetType }}",
+                    "rightValue": "Ad Creative",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 3
+                },
+                "conditions": [
+                  {
+                    "id": "e151be3a-3f8b-422d-857c-6461949129f0",
+                    "leftValue": "={{ $json.output.assets[4].assetType }}",
+                    "rightValue": "Testimonial Graphic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        }
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.4,
+      "position": [
+        -224,
+        336
+      ],
+      "id": "8bf9fcd4-5e89-4e6c-9125-8009fba0ded1",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "name": "Instagram Post",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "10d76657-3f1f-4796-acff-412cf0bf4b5e",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Testimonial graphical",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        768
+      ],
+      "id": "703a2f77-a439-4304-9148-07d00601b088",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Instagram Story",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        192
+      ],
+      "id": "916936bc-1c89-4aaa-8916-f2c1542ac38a",
+      "name": "Upload file2",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Website Banner",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        384
+      ],
+      "id": "48984ffd-f788-415d-b42b-46f1cf05711f",
+      "name": "Upload file3",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Ad Creative",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $('Create folder').item.json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        576
+      ],
+      "id": "921692e3-ec92-47bc-88bd-55797aa1f894",
+      "name": "Upload file4",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KgOU2mzepeboYms8",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-1",
+          "mode": "list",
+          "cachedResultName": "GPT-IMAGE-1"
+        },
+        "prompt": "=Create a square (1:1) photorealistic **Instagram Post** visual for the skincare product {{ $('On form submission').item.json['What is the product name?'] }} from {{ $('Edit Fields').item.json.brandName }}.\nThis is the **hero asset** in the product launch — it should feel bold, polished, and visually iconic. The composition must be clean, centered, and brand-first, setting the tone for the entire campaign.\nThe product image is provided — do not alter it. Integrate it into a stylized visual scene.\n\nUse a {{ $json.output.assets[0].backgroundTone }} background that reflects natural elegance — this may include textures like fabric folds, water ripples, or gradient light. Place the product on a {{ $json.output.assets[0].surfaceType }} such as stone, satin, or sculpted glass.\n\nIntroduce a complementary accent prop like a {{ $json.output.assets[0].accentProp }} to enrich the visual story. Ensure props enhance, not clutter.\n\nApply {{ $json.output.assets[0].lighting }} to add dimension, and capture the image from a {{ $json.output.assets[0].cameraAngle }} — this may be slightly off-center, angled, or from above to create depth.\n\nFollow the brand’s identity and styling rules:\n- Tone: {{ $('Edit Fields').item.json.brandTone }}\n- Color palette: {{ $('Edit Fields').item.json.colorTheme }}\n- Typography style (for brand reference only): {{ $('Edit Fields').item.json.typographyStyle }}\n- Product placement rules: {{ $('Edit Fields').item.json.productPlacement }}\n- Composition: {{ $('Edit Fields').item.json.compositionGuidelines }}\n\nFeel free to include overlay text - \"{{ $('AI Agent').item.json.output.assets[0].overlayText }}\". Ensure it is clearly legible, elegantly styled, and placed harmoniously within the composition. \n\nThis should be a clean, emotionally resonant product visual — worthy of a high-end Instagram or print campaign.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d0a765ff-bc58-4dff-8081-dfc913a57184",
+      "name": "Instagram post",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-1",
+          "mode": "list",
+          "cachedResultName": "GPT-IMAGE-1"
+        },
+        "prompt": "=Create a vertical 9:16 photorealistic **Instagram Story** visual for the skincare product {{ $('On form submission').item.json['What is the product name?'] }} from {{ $('Edit Fields').item.json.brandName }}.\n\nThis is a **mobile-first asset** — it should feel closer, more intimate, and optimized for scrolling. The visual must feel lighter and more immersive than the hero post, with vertical flow and tactile textures.\nThe product image is provided — do not alter it. Integrate it into a vertical, immersive, mobile-first visual scene.\n\nUse a {{ $json.output.assets[1].backgroundTone }} background with vertical flow — it may include soft light gradients, fabric drapes, or textured wall tones. Place the product on a {{ $json.output.assets[1].surfaceType }} appropriate for an elegant vertical composition.\n\nIntroduce a complementary vertical-friendly accent prop like a {{ $json.output.assets[1].accentProp }} to frame the product visually. Keep it minimal and scroll-worthy.\n\nApply {{ $json.output.assets[1].lighting }} to enhance clarity on mobile screens, and capture the image from a {{ $json.output.assets[1].cameraAngle }} that fits the tall format naturally.\n\nFollow the brand’s identity and styling rules:\n- Tone: {{ $('Edit Fields').item.json.brandTone }}\n- Color palette: {{ $('Edit Fields').item.json.colorTheme }}\n- Typography style (for brand reference only): {{ $('Edit Fields').item.json.typographyStyle }}\n- Product placement rules: {{ $('Edit Fields').item.json.productPlacement }}\n- Composition: {{ $('Edit Fields').item.json.compositionGuidelines }}\n\nFeel free to include overlay text - \"{{ $('AI Agent').item.json.output.assets[1].overlayText }}\". Ensure it is clearly legible, elegantly styled, and placed harmoniously within the composition. \n\nThis should feel refined, light, and scroll-stopping on a premium skincare brand’s Instagram Story.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        192
+      ],
+      "id": "97d1cf32-f282-4265-a9d4-424784b45a95",
+      "name": "Insatagram Story",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-1",
+          "mode": "list",
+          "cachedResultName": "GPT-IMAGE-1"
+        },
+        "prompt": "=Create a horizontal 16:9 photorealistic **Website Banner** visual for the skincare product {{ $('On form submission').item.json['What is the product name?'] }} from {{ $('Edit Fields').item.json.brandName }}.\n\nThis asset is for a homepage hero section. It must feel **spacious, minimal, and refined**, with clean off-center layout and breathing room. Visually, it should contrast from the bolder social assets and feel more ambient.\nThe product image is provided — do not alter it. Integrate it into a clean, web-friendly layout with ample negative space.\n\nUse a {{ $json.output.assets[2].backgroundTone }} background that works well on large desktop screens — think smooth gradients, soft textures, or minimal fabric scenes. Place the product on a {{ $json.output.assets[2].surfaceType }} with a clear left or right alignment.\n\nInclude a single complementary accent prop such as a {{ $json.output.assets[2].accentProp }} — soft, grounded, and not distracting. Keep the overall layout breathable.\n\nApply {{ $json.output.assets[2].lighting }} for subtle depth, and shoot from a {{ $json.output.assets[2].cameraAngle }} that supports side placement or spacing for overlay text externally (not in image).\n\nFollow the brand’s identity and styling rules:\n- Tone: {{ $('Edit Fields').item.json.brandTone }}\n- Color palette: {{ $('Edit Fields').item.json.colorTheme }}\n- Typography style (for brand reference only): {{ $('Edit Fields').item.json.typographyStyle }}\n- Product placement rules: {{ $('Edit Fields').item.json.productPlacement }}\n- Composition: {{ $('Edit Fields').item.json.compositionGuidelines }}\n\nFeel free to include overlay text - \"{{ $('AI Agent').item.json.output.assets[2].overlayText }}\". Ensure it is clearly legible, elegantly styled, and placed harmoniously within the composition. \n\nThis should feel modern, clean, and aligned with a premium skincare homepage aesthetic.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        384
+      ],
+      "id": "eb45c821-6aae-4086-96f6-06d649748146",
+      "name": "Website Banner",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-1",
+          "mode": "list",
+          "cachedResultName": "GPT-IMAGE-1"
+        },
+        "prompt": "=Create a square 1:1 photorealistic **Ad Creative** visual for the skincare product {{ $('On form submission').item.json['What is the product name?'] }} from {{ $('Edit Fields').item.json.brandName }}.\n\nThis is a **scroll-stopping ad** meant for paid social. It should feel **high-impact, dramatic, and visually punchy** — bold lighting, confident angles, and a strong visual hierarchy that stands apart from brand feed content.\nThe product image is provided — do not alter it. Integrate it into a bold and visually striking layout designed for advertising.\n\nUse a {{ $json.output.assets[3].backgroundTone }} background that immediately catches the eye — it may be deep, contrasty, or high-gloss. Place the product on a {{ $json.output.assets[3].surfaceType }} that adds visual punch without distraction.\n\nIntroduce a dynamic accent prop like a {{ $json.output.assets[3].accentProp }} to elevate the scene. The layout should feel purposeful and energetic.\n\nApply {{ $json.output.assets[3].lighting }} for contrast and bold shadows, and shoot from a {{ $json.output.assets[3].cameraAngle }} that adds visual drama and structure.\n\nFollow the brand’s identity and styling rules:\n- Tone: {{ $('Edit Fields').item.json.brandTone }}\n- Color palette: {{ $('Edit Fields').item.json.colorTheme }}\n- Typography style (for brand reference only): {{ $('Edit Fields').item.json.typographyStyle }}\n- Product placement rules: {{ $('Edit Fields').item.json.productPlacement }}\n- Composition: {{ $('Edit Fields').item.json.compositionGuidelines }}\n\nFeel free to include overlay text - \"{{ $('AI Agent').item.json.output.assets[3].overlayText }}\". Ensure it is clearly legible, elegantly styled, and placed harmoniously within the composition. \n\nThis should stop the scroll and feel luxurious, modern, and ad-ready while staying true to the brand.\n",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        576
+      ],
+      "id": "ea22b98b-3a2e-4f4a-8bf5-4be2c1bfe5f0",
+      "name": "Ad Creative",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "image",
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-image-1",
+          "mode": "list",
+          "cachedResultName": "GPT-IMAGE-1"
+        },
+        "prompt": "=Create a square 1:1 photorealistic **Testimonial Graphic** visual for the skincare product {{ $('On form submission').item.json['What is the product name?'] }} from {{ $('Edit Fields').item.json.brandName }}.\n\nThis asset supports a customer review or quote — it should feel **soft, nurturing, and emotionally warm**. Unlike bolder campaign assets, the design here must feel quiet, minimal, and sincere, drawing attention subtly to the product.\nThe product image is provided — do not alter it. Integrate it into a soft, calming visual meant to support a customer testimonial.\n\nUse a {{ $json.output.assets[4].backgroundTone }} background with muted tones — textures like linen, cream paper, or pastel gradients are welcome. Place the product gently on a {{ $json.output.assets[4].surfaceType }} that feels warm and nurturing.\n\nAdd a gentle, emotional prop like a {{ $json.output.assets[4].accentProp }}. Keep all elements minimal, sincere, and comforting.\n\nApply {{ $json.output.assets[4].lighting }} to soften the scene, and shoot from a {{ $json.output.assets[4].cameraAngle }} that conveys trust and simplicity.\n\nFollow the brand’s identity and styling rules:\n- Tone: {{ $('Edit Fields').item.json.brandTone }}\n- Color palette: {{ $('Edit Fields').item.json.colorTheme }}\n- Typography style (for brand reference only): {{ $('Edit Fields').item.json.typographyStyle }}\n- Product placement rules: {{ $('Edit Fields').item.json.productPlacement }}\n- Composition: {{ $('Edit Fields').item.json.compositionGuidelines }}\n\nFeel free to include overlay text - \"{{ $('AI Agent').item.json.output.assets[4].overlayText }}\". Ensure it is clearly legible, elegantly styled, and placed harmoniously within the composition. \n\n\nThis image should quietly support a testimonial or review without overshadowing it — calm, minimal, and emotionally resonant.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 2.3,
+      "position": [
+        0,
+        768
+      ],
+      "id": "8adcf61e-46d3-4982-9bbc-fd0fa0b330d8",
+      "name": "Testimonial Graphic",
+      "credentials": {
+        "openAiApi": {
+          "id": null,
+          "name": "",
+          "__aiGatewayManaged": true
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "On form submission": [
+      {
+        "json": {
+          "What is the product name?": "Unsu_Active_Hydra_Serum",
+          "What is the product tagline": "Pure Hydration, Perfected",
+          "Upload Product Image": [
+            {
+              "filename": "Unsu_Active_NMF_Serum.webp",
+              "mimetype": "image/webp",
+              "size": 28080
+            }
+          ],
+          "What is the product category": "Serum",
+          "Highlighted Benefit": "Instant skin Hydrating and brightening",
+          "submittedAt": "2026-08-27T14:21:47.505+06:00",
+          "formMode": "test",
+          "user": {
+            "id": "70641b7b-243e-4f5c-bae9-ce9539630980",
+            "email": "makeagain836@gmail.com",
+            "firstName": "makeagain",
+            "lastName": " "
+          }
+        },
+        "binary": {
+          "Upload_Product_Image": {
+            "mimeType": "image/webp",
+            "fileType": "image",
+            "fileExtension": "webp",
+            "data": "filesystem-v2",
+            "fileName": "Unsu_Active_NMF_Serum.webp",
+            "id": "filesystem-v2:workflows/GplokQXx4u1egfC3/executions/temp/binary_data/c94a67ff-e269-46b4-b8dc-eee0406234dd",
+            "fileSize": "28.1 kB",
+            "bytes": 28080
+          }
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Create folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create folder": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Instagram post",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insatagram Story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Website Banner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ad Creative",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Testimonial Graphic",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instagram post": {
+      "main": [
+        [
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insatagram Story": {
+      "main": [
+        [
+          {
+            "node": "Upload file2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Banner": {
+      "main": [
+        [
+          {
+            "node": "Upload file3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ad Creative": {
+      "main": [
+        [
+          {
+            "node": "Upload file4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Testimonial Graphic": {
+      "main": [
+        [
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "61ca2440-eca7-4f91-8287-f21505fe0aaf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8b8ede4c95621e3e502251f8cde71122c883a875d0bb0b1a9b10fa2b8cd6754f"
+  },
+  "nodeGroups": [],
+  "id": "mm1v4ls8lEx71UPu",
+  "tags": []
+}
